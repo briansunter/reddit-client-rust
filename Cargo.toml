@@ -1,0 +1,11 @@
+[package]
+name = "hackernews"
+version = "0.1.0"
+authors = ["Brian Sunter <public@briansunter.com>"]
+
+[dependencies]
+serde = "0.9"
+serde_json = "0.9"
+hyper = "0.10"
+serde_derive = "0.9"
+hyper-native-tls = "0.2.2"
