@@ -51,15 +51,23 @@ trait RedditClient {
     fn get_top_reddit_page(&self, after: String) -> Page;
 }
 
-struct RedditHTTPClient {}
+struct RedditHttpClient {
+    client: Client,
+}
 
-impl RedditClient for RedditHTTPClient {
-    fn get_top_reddit_page(&self, after: String) -> Page {
+impl RedditHttpClient {
+    pub fn new() -> RedditHttpClient {
         let ssl = NativeTlsClient::new().unwrap();
         let connector = HttpsConnector::new(ssl);
         let client = Client::with_connector(connector);
+        RedditHttpClient {client: client}
+    }
+}
+
+impl RedditClient for RedditHttpClient {
+    fn get_top_reddit_page(&self, after: String) -> Page {
         let url = format!("https://www.reddit.com/r/all/top.json?after={}", after);
-        let mut res = client.get(&url).send().unwrap();
+        let mut res = self.client.get(&url).send().unwrap();
         let mut body = String::new();
         res.read_to_string(&mut body).unwrap();
         let reddit_result: Result = serde_json::from_str(&body).unwrap();
@@ -68,7 +76,7 @@ impl RedditClient for RedditHTTPClient {
 }
 
 fn main() {
-    let reddit_client = RedditHTTPClient {};
+    let reddit_client = RedditHttpClient::new();
     let page = reddit_client.get_top_reddit_page("foo".to_owned());
     println!("{:?}", page);
 }
